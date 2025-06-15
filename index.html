@@ -622,4 +622,321 @@
                     let content = "";
                     let pagesProcessed = 0;
                     
-                    //g
+                    // Извлечение текста со всех страниц
+                    for (let i = 1; i <= totalPages; i++) {
+                        pdf.getPage(i).then(function(page) {
+                            return page.getTextContent();
+                        }).then(function(textContent) {
+                            let pageText = "";
+                            
+                            textContent.items.forEach(function(item) {
+                                pageText += item.str + " ";
+                            });
+                            
+                            content += pageText + "\n\n";
+                            pagesProcessed++;
+                            
+                            // Обновление прогресса
+                            const progress = Math.round((pagesProcessed / totalPages) * 100);
+                            progressBar.style.width = `${progress}%`;
+                            
+                            // Когда все страницы обработаны
+                            if (pagesProcessed === totalPages) {
+                                fileContent = content;
+                                showStatus('PDF успешно обработан', 'success');
+                                
+                                // Показать превью
+                                showPreview(content);
+                                
+                                // Генерация вопросов
+                                generateQuestionsFromContent(content);
+                            }
+                        }).catch(function(error) {
+                            showStatus('Ошибка при обработке страницы: ' + error.message, 'error');
+                        });
+                    }
+                }).catch(function(error) {
+                    showStatus('Ошибка при загрузке PDF: ' + error.message, 'error');
+                });
+            };
+            
+            fileReader.readAsArrayBuffer(file);
+        }
+        
+        // Парсинг DOCX файла
+        function parseDocxFile(file) {
+            showStatus('Обработка DOCX файла...', 'warning');
+            
+            const fileReader = new FileReader();
+            
+            fileReader.onload = function(e) {
+                const arrayBuffer = e.target.result;
+                
+                mammoth.extractRawText({ arrayBuffer: arrayBuffer })
+                    .then(function(result) {
+                        const content = result.value;
+                        fileContent = content;
+                        
+                        // Подсчет слов
+                        const words = content.split(/\s+/).filter(word => word.length > 0);
+                        wordCount.textContent = `Слов: ${words.length}`;
+                        
+                        showStatus('DOCX успешно обработан', 'success');
+                        
+                        // Показать превью
+                        showPreview(content);
+                        
+                        // Генерация вопросов
+                        generateQuestionsFromContent(content);
+                    })
+                    .catch(function(error) {
+                        showStatus('Ошибка при обработке DOCX: ' + error.message, 'error');
+                    });
+            };
+            
+            fileReader.readAsArrayBuffer(file);
+        }
+        
+        // Парсинг TXT файла
+        function parseTxtFile(file) {
+            showStatus('Обработка TXT файла...', 'warning');
+            
+            const fileReader = new FileReader();
+            
+            fileReader.onload = function(e) {
+                const content = e.target.result;
+                fileContent = content;
+                
+                // Подсчет слов
+                const words = content.split(/\s+/).filter(word => word.length > 0);
+                wordCount.textContent = `Слов: ${words.length}`;
+                
+                showStatus('TXT успешно обработан', 'success');
+                
+                // Показать превью
+                showPreview(content);
+                
+                // Генерация вопросов
+                generateQuestionsFromContent(content);
+            };
+            
+            fileReader.readAsText(file);
+        }
+        
+        // Показать превью содержимого
+        function showPreview(content) {
+            parsedContent.textContent = content.substring(0, 1000) + (content.length > 1000 ? "..." : "");
+            filePreview.style.display = 'block';
+        }
+        
+        // Генерация вопросов из содержимого файла
+        function generateQuestionsFromContent(content) {
+            questions = [];
+            
+            // Разделение содержимого на предложения
+            const sentences = content.split(/[.!?]/).filter(s => s.trim().length > 0);
+            
+            if (sentences.length < 4) {
+                showStatus('Файл содержит слишком мало информации для создания вопросов', 'error');
+                return;
+            }
+            
+            // Создание вопросов на основе предложений
+            for (let i = 0; i < sentences.length - 3; i += 2) {
+                const questionText = sentences[i].trim();
+                const options = [
+                    sentences[i+1].trim(),
+                    sentences[i+2].trim(),
+                    sentences[i+3].trim(),
+                    "Все перечисленные варианты неверны"
+                ];
+                
+                // Случайный выбор правильного ответа
+                const correctAnswer = Math.floor(Math.random() * 3);
+                
+                questions.push({
+                    id: questions.length + 1,
+                    text: questionText + "?",
+                    options: options,
+                    correctAnswer: correctAnswer
+                });
+            }
+            
+            showStatus(`Сгенерировано ${questions.length} вопросов`, 'success');
+        }
+        
+        // Показать статус
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = 'status ' + type;
+            statusDiv.style.display = 'block';
+        }
+        
+        // Начать экзамен
+        function startExam() {
+            if (questions.length === 0) {
+                showStatus('Нет вопросов для начала экзамена', 'error');
+                return;
+            }
+            
+            const questionCount = parseInt(questionCountInput.value) || 10;
+            const maxQuestions = Math.min(questionCount, questions.length);
+            
+            // Случайный выбор вопросов
+            const selectedQuestions = [...questions].sort(() => 0.5 - Math.random()).slice(0, maxQuestions);
+            questions = selectedQuestions;
+            userAnswers = new Array(questions.length).fill(null);
+            totalQuestionsSpan.textContent = maxQuestions;
+            
+            // Настройка таймера
+            const minutes = parseInt(minutesInput.value) || 30;
+            timeLeft = minutes * 60;
+            updateTimerDisplay();
+            
+            // Запуск таймера
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    finishExam();
+                }
+            }, 1000);
+            
+            // Запись времени начала
+            startTime = new Date();
+            
+            // Показать интерфейс экзамена
+            examInfo.style.display = 'none';
+            questionContainer.style.display = 'flex';
+            examStarted = true;
+            
+            // Показать первый вопрос
+            currentQuestionIndex = 0;
+            showQuestion();
+        }
+        
+        // Обновить отображение таймера
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Изменение цвета при малом времени
+            if (timeLeft < 300) { // 5 минут
+                timerDisplay.style.color = '#f72585';
+            } else {
+                timerDisplay.style.color = 'white';
+            }
+        }
+        
+        // Показать вопрос
+        function showQuestion() {
+            const question = questions[currentQuestionIndex];
+            questionText.textContent = question.text;
+            
+            // Очистить варианты ответов
+            optionsDiv.innerHTML = '';
+            
+            // Создать варианты ответов
+            const letters = ['A', 'B', 'C', 'D'];
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                if (userAnswers[currentQuestionIndex] === index) {
+                    optionElement.classList.add('selected');
+                }
+                
+                optionElement.innerHTML = `
+                    <div class="option-letter">${letters[index]}</div>
+                    <div class="option-text">${option}</div>
+                `;
+                
+                optionElement.addEventListener('click', () => {
+                    // Убрать выделение у других вариантов
+                    document.querySelectorAll('.option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Выделить выбранный вариант
+                    optionElement.classList.add('selected');
+                    
+                    // Сохранить ответ
+                    userAnswers[currentQuestionIndex] = index;
+                });
+                
+                optionsDiv.appendChild(optionElement);
+            });
+            
+            // Обновить счетчик вопросов
+            questionCounter.textContent = `Вопрос ${currentQuestionIndex + 1} из ${questions.length}`;
+            
+            // Настройка кнопок навигации
+            prevBtn.disabled = currentQuestionIndex === 0;
+            nextBtn.textContent = currentQuestionIndex === questions.length - 1 ? 'Завершить' : 'Далее';
+        }
+        
+        // Показать предыдущий вопрос
+        function showPrevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion();
+            }
+        }
+        
+        // Показать следующий вопрос
+        function showNextQuestion() {
+            // Проверить, выбран ли ответ
+            if (userAnswers[currentQuestionIndex] === null) {
+                alert('Пожалуйста, выберите ответ');
+                return;
+            }
+            
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                showQuestion();
+            } else {
+                finishExam();
+            }
+        }
+        
+        // Завершить экзамен
+        function finishExam() {
+            clearInterval(timer);
+            examStarted = false;
+            
+            // Рассчитать результат
+            let score = 0;
+            questions.forEach((question, index) => {
+                if (userAnswers[index] === question.correctAnswer) {
+                    score++;
+                }
+            });
+            
+            // Рассчитать затраченное время
+            const endTime = new Date();
+            const timeDiff = (endTime - startTime) / 1000; // в секундах
+            const minutesSpent = Math.floor(timeDiff / 60);
+            const secondsSpent = Math.floor(timeDiff % 60);
+            
+            timeSpent.textContent = `Затраченное время: ${minutesSpent} мин ${secondsSpent} сек`;
+            
+            // Показать результаты
+            questionContainer.style.display = 'none';
+            resultsDiv.style.display = 'block';
+            scoreDisplay.textContent = score;
+        }
+        
+        // Перезапустить экзамен
+        function restartExam() {
+            resultsDiv.style.display = 'none';
+            examInfo.style.display = 'block';
+            startBtn.disabled = false;
+            fileName.textContent = '';
+            fileInput.value = '';
+            filePreview.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
