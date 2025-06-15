@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduSmart - Тесты с поддержкой PDF/DOCX</title>
+    <title>EduSmart - Тесты</title>
     <style>
         :root {
             --primary: #4361ee;
@@ -12,7 +12,6 @@
             --dark: #212529;
             --success: #4cc9f0;
             --danger: #f72585;
-            --warning: #ff9e00;
         }
         
         * {
@@ -26,16 +25,12 @@
             background-color: #f0f2f5;
             color: #333;
             line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            flex: 1;
         }
         
         header {
@@ -89,9 +84,6 @@
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            min-height: 500px;
-            display: flex;
-            flex-direction: column;
         }
         
         .section-title {
@@ -182,8 +174,6 @@
         
         .question-container {
             display: none;
-            flex: 1;
-            flex-direction: column;
         }
         
         .timer-display {
@@ -205,17 +195,12 @@
             font-size: 1.2rem;
             margin-bottom: 20px;
             font-weight: 500;
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid var(--primary);
         }
         
         .options {
             display: grid;
             gap: 12px;
             margin-bottom: 30px;
-            flex: 1;
         }
         
         .option {
@@ -224,9 +209,6 @@
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
         
         .option:hover {
@@ -239,33 +221,15 @@
             border-color: var(--primary);
         }
         
-        .option-letter {
-            background: var(--primary);
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-        
         .navigation {
             display: flex;
             justify-content: space-between;
-            margin-top: auto;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
         }
         
         .results {
             display: none;
             text-align: center;
             padding: 30px;
-            flex: 1;
-            flex-direction: column;
-            justify-content: center;
         }
         
         .score {
@@ -314,69 +278,14 @@
             color: #721c24;
         }
         
-        .status.warning {
-            background: #fff3cd;
-            color: #856404;
-        }
-        
         footer {
             text-align: center;
             padding: 30px 0;
             margin-top: 50px;
             color: #6c757d;
             border-top: 1px solid #e9ecef;
-            background: white;
-        }
-        
-        #file-preview {
-            display: none;
-            margin-top: 20px;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            padding: 15px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        
-        .preview-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: var(--primary);
-        }
-        
-        #parsed-content {
-            line-height: 1.8;
-            white-space: pre-wrap;
-        }
-        
-        .file-info {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-            font-size: 0.9rem;
-            color: #666;
-        }
-        
-        .progress-container {
-            height: 8px;
-            background: #e9ecef;
-            border-radius: 4px;
-            margin-top: 10px;
-            overflow: hidden;
-            display: none;
-        }
-        
-        .progress-bar {
-            height: 100%;
-            background: var(--primary);
-            width: 0%;
-            transition: width 0.3s;
         }
     </style>
-    <!-- PDF.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-    <!-- DOCX.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.18/mammoth.browser.min.js"></script>
 </head>
 <body>
     <header>
@@ -398,20 +307,24 @@
                 
                 <div class="file-upload" id="drop-area">
                     <i class="fas fa-cloud-upload-alt"></i>
-
-
-
-
-                    
-
-                       <label>Перетащите файл сюда или нажмите для выбора:</label>
-                    <input type="file" id="exam-file" accept=".txt,.pdf,.docx,.doc">
-
-
                     
                     
-
-
+                    
+                    
+                    <label>Перетащите файл сюда или нажмите для выбора:</label>
+<input type="file" id="exam-file" 
+       accept=".txt,.pdf,.docx,.doc, 
+               application/pdf, 
+               application/vnd.openxmlformats-officedocument.wordprocessingml.document, 
+               application/msword, 
+               text/plain">
+                    
+                    
+                    
+                    
+                    
+                    
+                    
                     
                     <p class="file-name" id="file-name"></p>
                     
@@ -420,34 +333,38 @@
                         <span class="file-type">DOCX</span>
                         <span class="file-type">TXT</span>
                     </div>
-                    
-                    <div class="progress-container" id="progress-container">
-                        <div class="progress-bar" id="progress-bar"></div>
-                    </div>
                 </div>
                 <input type="file" id="file-input" class="file-input" accept=".pdf,.docx,.txt">
                 
                 <div class="status" id="status"></div>
                 
-                <div id="file-preview">
-                    <div class="preview-title">Предпросмотр содержимого:</div>
-                    <div id="parsed-content"></div>
-                    <div class="file-info">
-                        <span id="page-count">Страниц: 0</span>
-                        <span id="word-count">Слов: 0</span>
-                    </div>
-                </div>
-                
                 <div class="timer-settings">
-                    <h3>Настройка экзамена</h3>
+                    <h3>Настройка таймера</h3>
                     <div class="timer-input">
                         <i class="fas fa-clock"></i>
                         <input type="number" id="minutes" min="1" max="180" value="30"> минут
                     </div>
-                    <div class="timer-input" style="margin-top: 10px;">
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                     <div class="timer-input" style="margin-top: 10px;">
                         <i class="fas fa-question-circle"></i>
                         <input type="number" id="question-count" min="1" max="50" value="10"> вопросов
                     </div>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
                 </div>
                 
                 <button class="btn btn-start" id="start-btn" disabled>
@@ -487,9 +404,8 @@
                 <div class="results" id="results">
                     <i class="fas fa-trophy" style="font-size: 4rem; color: gold;"></i>
                     <h2>Экзамен завершен!</h2>
-                    <div class="score">Результат: <span id="score">0</span>/<span id="total-questions">10</span></div>
-                    <div id="time-spent">Затраченное время: 0 мин</div>
-                    <button class="btn" id="restart-btn" style="margin-top: 20px;">
+                    <div class="score">Результат: <span id="score">0</span>/10</div>
+                    <button class="btn" id="restart-btn">
                         <i class="fas fa-redo"></i> Пройти снова
                     </button>
                 </div>
@@ -500,7 +416,7 @@
     <footer>
         <div class="container">
             <p>© 2025 Zohirshohs IT Company. Все права защищены.</p>
-            <p>Тестовая система EduSmart с поддержкой PDF и DOCX</p>
+            <p>Тестовая система EduSmart</p>
         </div>
     </footer>
 
@@ -508,9 +424,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     
     <script>
-        // Установка пути к worker'у для pdf.js
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-
         // DOM элементы
         const fileInput = document.getElementById('file-input');
         const dropArea = document.getElementById('drop-area');
@@ -527,18 +440,9 @@
         const nextBtn = document.getElementById('next-btn');
         const questionCounter = document.getElementById('question-counter');
         const scoreDisplay = document.getElementById('score');
-        const totalQuestionsSpan = document.getElementById('total-questions');
         const restartBtn = document.getElementById('restart-btn');
         const minutesInput = document.getElementById('minutes');
-        const questionCountInput = document.getElementById('question-count');
-        const filePreview = document.getElementById('file-preview');
-        const parsedContent = document.getElementById('parsed-content');
-        const pageCount = document.getElementById('page-count');
-        const wordCount = document.getElementById('word-count');
-        const progressContainer = document.getElementById('progress-container');
-        const progressBar = document.getElementById('progress-bar');
-        const timeSpent = document.getElementById('time-spent');
-
+        
         // Переменные состояния
         let questions = [];
         let currentQuestionIndex = 0;
@@ -546,10 +450,7 @@
         let timer;
         let timeLeft;
         let examStarted = false;
-        let startTime;
-        let fileContent = "";
-        let fileType = "";
-
+        
         // Обработчики событий
         dropArea.addEventListener('click', () => fileInput.click());
         
@@ -597,186 +498,35 @@
             }
             
             fileName.textContent = fileNameText;
+            showStatus('Файл успешно загружен', 'success');
             startBtn.disabled = false;
-            fileType = fileExtension;
             
-            // Показать индикатор прогресса
-            progressContainer.style.display = 'block';
-            progressBar.style.width = '0%';
-            
-            // Скрыть превью
-            filePreview.style.display = 'none';
-            
-            // Обработка в зависимости от типа файла
-            if (fileExtension === 'pdf') {
-                parsePdfFile(file);
-            } else if (fileExtension === 'docx') {
-                parseDocxFile(file);
-            } else if (fileExtension === 'txt') {
-                parseTxtFile(file);
-            }
+            // В реальном приложении здесь будет парсинг файла
+            // Для демо-версии создадим тестовые вопросы
+            generateDemoQuestions();
         }
         
-        // Парсинг PDF файла
-        function parsePdfFile(file) {
-            showStatus('Обработка PDF файла...', 'warning');
-            
-            const fileReader = new FileReader();
-            
-            fileReader.onload = function() {
-                const typedarray = new Uint8Array(this.result);
-                
-                // Загрузка PDF
-                const loadingTask = pdfjsLib.getDocument(typedarray);
-                
-                loadingTask.promise.then(function(pdf) {
-                    const totalPages = pdf.numPages;
-                    pageCount.textContent = `Страниц: ${totalPages}`;
-                    
-                    let content = "";
-                    let pagesProcessed = 0;
-                    
-                    // Извлечение текста со всех страниц
-                    for (let i = 1; i <= totalPages; i++) {
-                        pdf.getPage(i).then(function(page) {
-                            return page.getTextContent();
-                        }).then(function(textContent) {
-                            let pageText = "";
-                            
-                            textContent.items.forEach(function(item) {
-                                pageText += item.str + " ";
-                            });
-                            
-                            content += pageText + "\n\n";
-                            pagesProcessed++;
-                            
-                            // Обновление прогресса
-                            const progress = Math.round((pagesProcessed / totalPages) * 100);
-                            progressBar.style.width = `${progress}%`;
-                            
-                            // Когда все страницы обработаны
-                            if (pagesProcessed === totalPages) {
-                                fileContent = content;
-                                showStatus('PDF успешно обработан', 'success');
-                                
-                                // Показать превью
-                                showPreview(content);
-                                
-                                // Генерация вопросов
-                                generateQuestionsFromContent(content);
-                            }
-                        }).catch(function(error) {
-                            showStatus('Ошибка при обработке страницы: ' + error.message, 'error');
-                        });
-                    }
-                }).catch(function(error) {
-                    showStatus('Ошибка при загрузке PDF: ' + error.message, 'error');
-                });
-            };
-            
-            fileReader.readAsArrayBuffer(file);
-        }
-        
-        // Парсинг DOCX файла
-        function parseDocxFile(file) {
-            showStatus('Обработка DOCX файла...', 'warning');
-            
-            const fileReader = new FileReader();
-            
-            fileReader.onload = function(e) {
-                const arrayBuffer = e.target.result;
-                
-                mammoth.extractRawText({ arrayBuffer: arrayBuffer })
-                    .then(function(result) {
-                        const content = result.value;
-                        fileContent = content;
-                        
-                        // Подсчет слов
-                        const words = content.split(/\s+/).filter(word => word.length > 0);
-                        wordCount.textContent = `Слов: ${words.length}`;
-                        
-                        showStatus('DOCX успешно обработан', 'success');
-                        
-                        // Показать превью
-                        showPreview(content);
-                        
-                        // Генерация вопросов
-                        generateQuestionsFromContent(content);
-                    })
-                    .catch(function(error) {
-                        showStatus('Ошибка при обработке DOCX: ' + error.message, 'error');
-                    });
-            };
-            
-            fileReader.readAsArrayBuffer(file);
-        }
-        
-        // Парсинг TXT файла
-        function parseTxtFile(file) {
-            showStatus('Обработка TXT файла...', 'warning');
-            
-            const fileReader = new FileReader();
-            
-            fileReader.onload = function(e) {
-                const content = e.target.result;
-                fileContent = content;
-                
-                // Подсчет слов
-                const words = content.split(/\s+/).filter(word => word.length > 0);
-                wordCount.textContent = `Слов: ${words.length}`;
-                
-                showStatus('TXT успешно обработан', 'success');
-                
-                // Показать превью
-                showPreview(content);
-                
-                // Генерация вопросов
-                generateQuestionsFromContent(content);
-            };
-            
-            fileReader.readAsText(file);
-        }
-        
-        // Показать превью содержимого
-        function showPreview(content) {
-            parsedContent.textContent = content.substring(0, 1000) + (content.length > 1000 ? "..." : "");
-            filePreview.style.display = 'block';
-        }
-        
-        // Генерация вопросов из содержимого файла
-        function generateQuestionsFromContent(content) {
+        // Генерация демо-вопросов
+        function generateDemoQuestions() {
             questions = [];
+            const subjects = ['Математика', 'История', 'Биология', 'Физика', 'Химия'];
             
-            // Разделение содержимого на предложения
-            const sentences = content.split(/[.!?]/).filter(s => s.trim().length > 0);
-            
-            if (sentences.length < 4) {
-                showStatus('Файл содержит слишком мало информации для создания вопросов', 'error');
-                return;
-            }
-            
-            // Создание вопросов на основе предложений
-            for (let i = 0; i < sentences.length - 3; i += 2) {
-                const questionText = sentences[i].trim();
-                const options = [
-                    sentences[i+1].trim(),
-                    sentences[i+2].trim(),
-                    sentences[i+3].trim(),
-                    "Все перечисленные варианты неверны"
-                ];
+            for (let i = 1; i <= 50; i++) {
+                const subject = subjects[Math.floor(Math.random() * subjects.length)];
+                const options = [];
+                const correctIndex = Math.floor(Math.random() * 4);
                 
-                // Случайный выбор правильного ответа
-                const correctAnswer = Math.floor(Math.random() * 3);
+                for (let j = 0; j < 4; j++) {
+                    options.push(`Вариант ${j+1} по вопросу ${i}`);
+                }
                 
                 questions.push({
-                    id: questions.length + 1,
-                    text: questionText + "?",
+                    id: i,
+                    text: `Вопрос ${i} (${subject}): Каков правильный ответ?`,
                     options: options,
-                    correctAnswer: correctAnswer
+                    correctAnswer: correctIndex
                 });
             }
-            
-            showStatus(`Сгенерировано ${questions.length} вопросов`, 'success');
         }
         
         // Показать статус
@@ -784,23 +534,18 @@
             statusDiv.textContent = message;
             statusDiv.className = 'status ' + type;
             statusDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
         }
         
         // Начать экзамен
         function startExam() {
-            if (questions.length === 0) {
-                showStatus('Нет вопросов для начала экзамена', 'error');
-                return;
-            }
-            
-            const questionCount = parseInt(questionCountInput.value) || 10;
-            const maxQuestions = Math.min(questionCount, questions.length);
-            
-            // Случайный выбор вопросов
-            const selectedQuestions = [...questions].sort(() => 0.5 - Math.random()).slice(0, maxQuestions);
+            // Случайный выбор 10 вопросов
+            const selectedQuestions = [...questions].sort(() => 0.5 - Math.random()).slice(0, 10);
             questions = selectedQuestions;
             userAnswers = new Array(questions.length).fill(null);
-            totalQuestionsSpan.textContent = maxQuestions;
             
             // Настройка таймера
             const minutes = parseInt(minutesInput.value) || 30;
@@ -818,12 +563,9 @@
                 }
             }, 1000);
             
-            // Запись времени начала
-            startTime = new Date();
-            
             // Показать интерфейс экзамена
             examInfo.style.display = 'none';
-            questionContainer.style.display = 'flex';
+            questionContainer.style.display = 'block';
             examStarted = true;
             
             // Показать первый вопрос
@@ -854,18 +596,13 @@
             optionsDiv.innerHTML = '';
             
             // Создать варианты ответов
-            const letters = ['A', 'B', 'C', 'D'];
             question.options.forEach((option, index) => {
                 const optionElement = document.createElement('div');
                 optionElement.className = 'option';
                 if (userAnswers[currentQuestionIndex] === index) {
                     optionElement.classList.add('selected');
                 }
-                
-                optionElement.innerHTML = `
-                    <div class="option-letter">${letters[index]}</div>
-                    <div class="option-text">${option}</div>
-                `;
+                optionElement.textContent = option;
                 
                 optionElement.addEventListener('click', () => {
                     // Убрать выделение у других вариантов
@@ -922,35 +659,4 @@
             
             // Рассчитать результат
             let score = 0;
-            questions.forEach((question, index) => {
-                if (userAnswers[index] === question.correctAnswer) {
-                    score++;
-                }
-            });
             
-            // Рассчитать затраченное время
-            const endTime = new Date();
-            const timeDiff = (endTime - startTime) / 1000; // в секундах
-            const minutesSpent = Math.floor(timeDiff / 60);
-            const secondsSpent = Math.floor(timeDiff % 60);
-            
-            timeSpent.textContent = `Затраченное время: ${minutesSpent} мин ${secondsSpent} сек`;
-            
-            // Показать результаты
-            questionContainer.style.display = 'none';
-            resultsDiv.style.display = 'block';
-            scoreDisplay.textContent = score;
-        }
-        
-        // Перезапустить экзамен
-        function restartExam() {
-            resultsDiv.style.display = 'none';
-            examInfo.style.display = 'block';
-            startBtn.disabled = false;
-            fileName.textContent = '';
-            fileInput.value = '';
-            filePreview.style.display = 'none';
-        }
-    </script>
-</body>
-</html>
