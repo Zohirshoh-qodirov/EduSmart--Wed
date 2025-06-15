@@ -232,6 +232,63 @@
             padding: 30px;
         }
         
+        
+        
+        
+        
+        .file-upload-label {
+    display: block;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.file-upload-button {
+    padding: 10px 15px;
+    background: #4361ee;
+    color: white;
+    border-radius: 5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.3s;
+}
+
+.file-upload-button:hover {
+    background: #3a3faf;
+}
+
+.file-input-hidden {
+    display: none;
+}
+
+#file-name-display {
+    margin-top: 5px;
+    font-size: 0.9rem;
+    color: #666;
+}
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         .score {
             font-size: 3rem;
             font-weight: bold;
@@ -312,18 +369,18 @@
                     
                     
                     <label>Перетащите файл сюда или нажмите для выбора:</label>
-<input type="file" id="exam-file">
-      
-                    
-                    
-                    <!accept=".txt,.pdf,.docx,.doc, 
-               application/pdf, 
-               application/vnd.openxmlformats-officedocument.wordprocessingml.document, 
-               application/msword, 
-               text/plain">
                     
                     
                     
+                    
+                    <label for="exam-file" class="file-upload-label">
+    <div class="file-upload-button">
+        <i class="fas fa-file-upload"></i> Выбрать файл
+    </div>
+</label>
+<input type="file" id="exam-file" class="file-input-hidden"
+       accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain">
+<div id="file-name-display">Файл не выбран</div>
                     
                     
                     
