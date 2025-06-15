@@ -232,62 +232,36 @@
             padding: 30px;
         }
         
-        
-        
-        
-        
         .file-upload-label {
-    display: block;
-    margin-bottom: 10px;
-    cursor: pointer;
-}
+            display: block;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
 
-.file-upload-button {
-    padding: 10px 15px;
-    background: #4361ee;
-    color: white;
-    border-radius: 5px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: background 0.3s;
-}
+        .file-upload-button {
+            padding: 10px 15px;
+            background: #4361ee;
+            color: white;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
 
-.file-upload-button:hover {
-    background: #3a3faf;
-}
+        .file-upload-button:hover {
+            background: #3a3faf;
+        }
 
-.file-input-hidden {
-    display: none;
-}
+        .file-input-hidden {
+            display: none;
+        }
 
-#file-name-display {
-    margin-top: 5px;
-    font-size: 0.9rem;
-    color: #666;
-}
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+        #file-name-display {
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: #666;
+        }
         
         .score {
             font-size: 3rem;
@@ -365,28 +339,16 @@
                 <div class="file-upload" id="drop-area">
                     <i class="fas fa-cloud-upload-alt"></i>
                     
-                    
-                    
-                    
                     <label>Перетащите файл сюда или нажмите для выбора:</label>
                     
-                    
-                    
-                    
                     <label for="exam-file" class="file-upload-label">
-    <div class="file-upload-button">
-        <i class="fas fa-file-upload"></i> Выбрать файл
-    </div>
-</label>
-<input type="file" id="exam-file" class="file-input-hidden"
-       accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain">
-<div id="file-name-display">Файл не выбран</div>
-                    
-                    
-                    
-                    
-                    
-                    <p class="file-name" id="file-name"></p>
+                        <div class="file-upload-button">
+                            <i class="fas fa-file-upload"></i> Выбрать файл
+                        </div>
+                    </label>
+                    <input type="file" id="exam-file" class="file-input-hidden"
+                           accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain">
+                    <div id="file-name-display">Файл не выбран</div>
                     
                     <div class="file-types">
                         <span class="file-type">PDF</span>
@@ -394,7 +356,6 @@
                         <span class="file-type">TXT</span>
                     </div>
                 </div>
-                <input type="file" id="file-input" class="file-input" accept=".pdf,.docx,.txt">
                 
                 <div class="status" id="status"></div>
                 
@@ -405,26 +366,10 @@
                         <input type="number" id="minutes" min="1" max="180" value="30"> минут
                     </div>
                     
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                     <div class="timer-input" style="margin-top: 10px;">
+                    <div class="timer-input" style="margin-top: 10px;">
                         <i class="fas fa-question-circle"></i>
                         <input type="number" id="question-count" min="1" max="50" value="10"> вопросов
                     </div>
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
                 </div>
                 
                 <button class="btn btn-start" id="start-btn" disabled>
@@ -485,9 +430,8 @@
     
     <script>
         // DOM элементы
-        const fileInput = document.getElementById('file-input');
-        const dropArea = document.getElementById('drop-area');
-        const fileName = document.getElementById('file-name');
+        const examFileInput = document.getElementById('exam-file');
+        const fileNameDisplay = document.getElementById('file-name-display');
         const startBtn = document.getElementById('start-btn');
         const statusDiv = document.getElementById('status');
         const examInfo = document.getElementById('exam-info');
@@ -502,7 +446,9 @@
         const scoreDisplay = document.getElementById('score');
         const restartBtn = document.getElementById('restart-btn');
         const minutesInput = document.getElementById('minutes');
-        
+        const questionCountInput = document.getElementById('question-count');
+        const dropArea = document.getElementById('drop-area');
+
         // Переменные состояния
         let questions = [];
         let currentQuestionIndex = 0;
@@ -512,10 +458,9 @@
         let examStarted = false;
         
         // Обработчики событий
-        dropArea.addEventListener('click', () => fileInput.click());
+        examFileInput.addEventListener('change', handleFileSelect);
         
-        fileInput.addEventListener('change', handleFileSelect);
-        
+        // Обработка перетаскивания файлов
         dropArea.addEventListener('dragover', (e) => {
             e.preventDefault();
             dropArea.style.borderColor = '#4361ee';
@@ -533,8 +478,8 @@
             dropArea.style.backgroundColor = '';
             
             if (e.dataTransfer.files.length) {
-                fileInput.files = e.dataTransfer.files;
-                handleFileSelect();
+                examFileInput.files = e.dataTransfer.files;
+                handleFileSelect({ target: examFileInput });
             }
         });
         
@@ -544,20 +489,24 @@
         restartBtn.addEventListener('click', restartExam);
         
         // Обработка выбора файла
-        function handleFileSelect() {
-            if (fileInput.files.length === 0) return;
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
             
-            const file = fileInput.files[0];
+            const file = files[0];
             const fileNameText = file.name;
             const fileExtension = fileNameText.split('.').pop().toLowerCase();
             
             // Проверка формата файла
             if (!['pdf', 'docx', 'txt'].includes(fileExtension)) {
                 showStatus('Ошибка: поддерживаются только файлы PDF, DOCX и TXT', 'error');
+                fileNameDisplay.textContent = 'Неподдерживаемый формат';
+                fileNameDisplay.style.color = '#f72585';
                 return;
             }
             
-            fileName.textContent = fileNameText;
+            fileNameDisplay.textContent = fileNameText;
+            fileNameDisplay.style.color = '#06d6a0';
             showStatus('Файл успешно загружен', 'success');
             startBtn.disabled = false;
             
@@ -719,4 +668,26 @@
             
             // Рассчитать результат
             let score = 0;
+            questions.forEach((question, index) => {
+                if (userAnswers[index] === question.correctAnswer) {
+                    score++;
+                }
+            });
             
+            // Показать результаты
+            questionContainer.style.display = 'none';
+            resultsDiv.style.display = 'block';
+            scoreDisplay.textContent = score;
+        }
+        
+        // Перезапустить экзамен
+        function restartExam() {
+            resultsDiv.style.display = 'none';
+            examInfo.style.display = 'block';
+            startBtn.disabled = false;
+            fileNameDisplay.textContent = 'Файл не выбран';
+            fileNameDisplay.style.color = '#666';
+        }
+    </script>
+</body>
+</html>
